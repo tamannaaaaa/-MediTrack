@@ -95,6 +95,13 @@ function ProgressChart() {
     });
   }, [timeRange, medications, takenHistory]);
 
+    const getColorForMedication = (name) => {
+    const colors = ['#667eea', '#764ba2', '#4ecdc4', '#44a08d', '#fd746c', '#ff9068', '#4caf50', '#8bc34a'];
+    const index = name.length % colors.length;
+    return colors[index];
+  };
+
+
   const medicationBreakdown = useMemo(() => {
     const breakdown = {};
     
@@ -115,11 +122,6 @@ function ProgressChart() {
     return Object.values(breakdown);
   }, [medications, takenHistory, timeRange]);
 
-  const getColorForMedication = (name) => {
-    const colors = ['#667eea', '#764ba2', '#4ecdc4', '#44a08d', '#fd746c', '#ff9068', '#4caf50', '#8bc34a'];
-    const index = name.length % colors.length;
-    return colors[index];
-  };
 
   const overallStats = useMemo(() => {
     const totalScheduled = adherenceData.reduce((sum, day) => sum + day.scheduled, 0);
