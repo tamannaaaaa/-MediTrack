@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useMedication } from '../context/MedicationContext';
 import { AlertTriangle, Info, CheckCircle, Search } from 'lucide-react';
 
@@ -28,10 +28,6 @@ function InteractionChecker() {
       'gemfibrozil': { severity: 'severe', description: 'Increased risk of muscle damage' }
     }
   };
-
-  useEffect(() => {
-    checkInteractions();
-  }, [medications]);
 
   const checkInteractions = () => {
     setLoading(true);

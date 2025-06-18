@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useMedication } from '../context/MedicationContext';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Calendar, TrendingUp, Award, Target } from 'lucide-react';
 
 function ProgressChart() {

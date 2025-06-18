@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMedication } from '../context/MedicationContext';
-import { Flame, Target, Calendar, Award } from 'lucide-react';
+import { Target, Calendar, Award } from 'lucide-react';
 
 function StreakCounter() {
   const { streak, medications, takenHistory, getAdherenceRate } = useMedication();
