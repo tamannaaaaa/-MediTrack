@@ -105,8 +105,6 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 Tamanna Singh
 🛠 Built with React and ❤️
 
-Let me know if you want a version with badges, hosted demo links, or deployment instructions (e.g., for Vercel, Netlify, or Firebase).
-
 
 
 
