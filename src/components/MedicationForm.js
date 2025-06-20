@@ -4,7 +4,8 @@ import { Plus, Trash2, Clock } from 'lucide-react';
 
 function MedicationForm() {
   const { addMedication } = useMedication();
-  const [formData, setFormData] = useState({
+
+  const [medicationInfo, setMedicationInfo] = useState({
     name: '',
     dosage: '',
     frequency: 'daily',
@@ -15,86 +16,84 @@ function MedicationForm() {
     reminderEnabled: true
   });
 
-  const handleInputChange = (e) => {
+  // Handles input and checkbox updates
+  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setMedicationInfo((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
   };
 
-  const handleTimeChange = (index, value) => {
-    const newTimes = [...formData.times];
-    newTimes[index] = value;
-    setFormData(prev => ({
+  // Updates specific time slot
+  const updateTime = (idx, value) => {
+    const updatedTimes = [...medicationInfo.times];
+    updatedTimes[idx] = value;
+    setMedicationInfo((prev) => ({
       ...prev,
-      times: newTimes
+      times: updatedTimes
     }));
   };
 
-  const addTimeSlot = () => {
-    setFormData(prev => ({
+  // Adds new time slot
+  const addNewTime = () => {
+    if (medicationInfo.times.length >= 6) {
+      alert('Maximum 6 reminders allowed per medication');
+      return;
+    }
+    setMedicationInfo((prev) => ({
       ...prev,
       times: [...prev.times, '08:00']
     }));
   };
 
-  const removeTimeSlot = (index) => {
-    if (formData.times.length > 1) {
-      const newTimes = formData.times.filter((_, i) => i !== index);
-      setFormData(prev => ({
-        ...prev,
-        times: newTimes
-      }));
-    }
-  };
-
-  const handleFrequencyChange = (frequency) => {
-    let defaultTimes = [];
-    switch (frequency) {
-      case 'once':
-        defaultTimes = ['08:00'];
-        break;
-      case 'twice':
-        defaultTimes = ['08:00', '20:00'];
-        break;
-      case 'three-times':
-        defaultTimes = ['08:00', '14:00', '20:00'];
-        break;
-      case 'four-times':
-        defaultTimes = ['08:00', '12:00', '16:00', '20:00'];
-        break;
-      default:
-        defaultTimes = ['08:00'];
-    }
-    
-    setFormData(prev => ({
+  // Removes a specific time slot
+  const removeTime = (idx) => {
+    const updated = medicationInfo.times.filter((_, i) => i !== idx);
+    setMedicationInfo((prev) => ({
       ...prev,
-      frequency,
-      times: defaultTimes
+      times: updated
     }));
   };
 
+  // Handles frequency presets
+  const setFrequency = (freq) => {
+    const presets = {
+      once: ['08:00'],
+      twice: ['08:00', '20:00'],
+      'three-times': ['08:00', '14:00', '20:00'],
+      'four-times': ['08:00', '12:00', '16:00', '20:00'],
+      custom: ['08:00']
+    };
+
+    setMedicationInfo((prev) => ({
+      ...prev,
+      frequency: freq,
+      times: presets[freq] || ['08:00']
+    }));
+  };
+
+  // Final form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (!formData.name.trim() || !formData.dosage.trim()) {
-      alert('Please fill in all required fields');
+
+    if (!medicationInfo.name.trim() || !medicationInfo.dosage.trim()) {
+      alert('Please provide both name and dosage.');
       return;
     }
 
-    const medication = {
-      ...formData,
-      name: formData.name.trim(),
-      dosage: formData.dosage.trim(),
-      notes: formData.notes.trim(),
+    const newMedication = {
+      ...medicationInfo,
+      name: medicationInfo.name.trim(),
+      dosage: medicationInfo.dosage.trim(),
+      notes: medicationInfo.notes.trim(),
       createdAt: new Date().toISOString()
     };
 
-    addMedication(medication);
-    
-    // Reset form
-    setFormData({
+    addMedication(newMedication);
+
+    // Clear the form
+    setMedicationInfo({
       name: '',
       dosage: '',
       frequency: 'daily',
@@ -105,26 +104,26 @@ function MedicationForm() {
       reminderEnabled: true
     });
 
-    alert('Medication added successfully!');
+    alert('Medication successfully saved!');
   };
 
   return (
     <div className="card">
       <h2 style={{ marginBottom: '25px', color: '#333' }}>
-        ➕ Add New Medication
+        ➕ Log Your Medication
       </h2>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="name">Medication Name *</label>
+          <label htmlFor="name">Name *</label>
           <input
             type="text"
             id="name"
             name="name"
-            value={formData.name}
-            onChange={handleInputChange}
+            value={medicationInfo.name}
+            onChange={handleChange}
             className="form-input"
-            placeholder="e.g., Lisinopril, Metformin, Vitamin D"
+            placeholder="e.g., Metformin, Iron Tablet"
             required
           />
         </div>
@@ -135,44 +134,44 @@ function MedicationForm() {
             type="text"
             id="dosage"
             name="dosage"
-            value={formData.dosage}
-            onChange={handleInputChange}
+            value={medicationInfo.dosage}
+            onChange={handleChange}
             className="form-input"
-            placeholder="e.g., 10mg, 2 tablets, 1 capsule"
+            placeholder="e.g., 1 tablet, 500mg"
             required
           />
         </div>
 
         <div className="form-group">
           <label>Frequency</label>
-          <div style={{ 
-            display: 'grid', 
+          <div style={{
+            display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
             gap: '10px',
             marginTop: '10px'
           }}>
             {[
-              { value: 'once', label: 'Once daily' },
-              { value: 'twice', label: 'Twice daily' },
-              { value: 'three-times', label: '3 times daily' },
-              { value: 'four-times', label: '4 times daily' },
+              { value: 'once', label: 'Once' },
+              { value: 'twice', label: 'Twice' },
+              { value: 'three-times', label: '3x daily' },
+              { value: 'four-times', label: '4x daily' },
               { value: 'custom', label: 'Custom' }
-            ].map(option => (
+            ].map(opt => (
               <button
-                key={option.value}
+                key={opt.value}
                 type="button"
-                onClick={() => handleFrequencyChange(option.value)}
+                onClick={() => setFrequency(opt.value)}
                 style={{
                   padding: '10px',
-                  border: `2px solid ${formData.frequency === option.value ? '#667eea' : '#e1e5e9'}`,
-                  borderRadius: '8px',
-                  background: formData.frequency === option.value ? '#f0f3ff' : 'white',
-                  color: formData.frequency === option.value ? '#667eea' : '#666',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem'
+                  border: `2px solid ${medicationInfo.frequency === opt.value ? '#007bff' : '#ccc'}`,
+                  borderRadius: '6px',
+                  background: medicationInfo.frequency === opt.value ? '#e6f0ff' : '#fff',
+                  color: medicationInfo.frequency === opt.value ? '#007bff' : '#333',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
                 }}
               >
-                {option.label}
+                {opt.label}
               </button>
             ))}
           </div>
@@ -180,32 +179,26 @@ function MedicationForm() {
 
         <div className="form-group">
           <label>Reminder Times</label>
-          {formData.times.map((time, index) => (
-            <div key={index} style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '10px',
-              marginBottom: '10px'
-            }}>
-              <Clock size={20} color="#667eea" />
+          {medicationInfo.times.map((time, idx) => (
+            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+              <Clock size={20} color="#007bff" />
               <input
                 type="time"
                 value={time}
-                onChange={(e) => handleTimeChange(index, e.target.value)}
+                onChange={(e) => updateTime(idx, e.target.value)}
                 className="form-input"
                 style={{ flex: 1 }}
               />
-              {formData.times.length > 1 && (
+              {medicationInfo.times.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => removeTimeSlot(index)}
+                  onClick={() => removeTime(idx)}
                   style={{
-                    padding: '8px',
-                    border: 'none',
+                    padding: '6px',
+                    background: '#ffe6e6',
+                    color: '#d32f2f',
                     borderRadius: '6px',
-                    background: '#ffebee',
-                    color: '#f44336',
-                    cursor: 'pointer'
+                    border: 'none'
                   }}
                 >
                   <Trash2 size={16} />
@@ -213,22 +206,21 @@ function MedicationForm() {
               )}
             </div>
           ))}
-          
           <button
             type="button"
-            onClick={addTimeSlot}
+            onClick={addNewTime}
             style={{
+              marginTop: '10px',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '8px',
               padding: '10px',
-              border: '2px dashed #667eea',
-              borderRadius: '8px',
+              border: '2px dashed #007bff',
+              borderRadius: '6px',
               background: 'transparent',
-              color: '#667eea',
-              cursor: 'pointer',
-              width: '100%',
-              justifyContent: 'center'
+              color: '#007bff',
+              width: '100%'
             }}
           >
             <Plus size={16} />
@@ -236,47 +228,40 @@ function MedicationForm() {
           </button>
         </div>
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1fr 1fr',
-          gap: '15px'
-        }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
           <div className="form-group">
             <label htmlFor="startDate">Start Date</label>
             <input
               type="date"
-              id="startDate"
               name="startDate"
-              value={formData.startDate}
-              onChange={handleInputChange}
+              value={medicationInfo.startDate}
+              onChange={handleChange}
               className="form-input"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="endDate">End Date (Optional)</label>
+            <label htmlFor="endDate">End Date</label>
             <input
               type="date"
-              id="endDate"
               name="endDate"
-              value={formData.endDate}
-              onChange={handleInputChange}
+              value={medicationInfo.endDate}
+              onChange={handleChange}
               className="form-input"
-              min={formData.startDate}
+              min={medicationInfo.startDate}
             />
           </div>
         </div>
 
         <div className="form-group">
-          <label htmlFor="notes">Notes (Optional)</label>
+          <label htmlFor="notes">Notes</label>
           <textarea
-            id="notes"
             name="notes"
-            value={formData.notes}
-            onChange={handleInputChange}
+            value={medicationInfo.notes}
+            onChange={handleChange}
             className="form-textarea"
             rows="3"
-            placeholder="Any special instructions, side effects to watch for, etc."
+            placeholder="e.g., Take after food, avoid dairy"
           />
         </div>
 
@@ -285,29 +270,25 @@ function MedicationForm() {
             <input
               type="checkbox"
               name="reminderEnabled"
-              checked={formData.reminderEnabled}
-              onChange={handleInputChange}
+              checked={medicationInfo.reminderEnabled}
+              onChange={handleChange}
               style={{ width: 'auto' }}
             />
-            Enable push notifications for reminders
+            Enable reminder notifications
           </label>
         </div>
 
-        <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
+        <div style={{ display: 'flex', gap: '15px', marginTop: '25px' }}>
           <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
             <Plus size={16} />
-            Add Medication
+            Save Medication
           </button>
-          <button 
-            type="button" 
-            className="btn" 
-            style={{ 
-              flex: 1,
-              background: '#f5f5f5',
-              color: '#666'
-            }}
+          <button
+            type="button"
+            className="btn"
+            style={{ flex: 1, background: '#f8f9fa', color: '#333' }}
             onClick={() => {
-              setFormData({
+              setMedicationInfo({
                 name: '',
                 dosage: '',
                 frequency: 'daily',
@@ -319,7 +300,7 @@ function MedicationForm() {
               });
             }}
           >
-            Clear Form
+            Reset
           </button>
         </div>
       </form>
